@@ -1,0 +1,38 @@
+CREATE DATABASE prueba_softcaribbean;
+
+USE prueba_softcaribbean;
+
+CREATE TABLE USUARIO (
+    ID_USUARIO INT NOT NULL AUTO_INCREMENT,
+    NOMBRES VARCHAR(80) NOT NULL,
+    APELLIDOS VARCHAR(80) NOT NULL,
+    CEDULA VARCHAR(15) NOT NULL UNIQUE,
+    CORREO VARCHAR(100) NOT NULL UNIQUE,
+    TELEFONO VARCHAR(15) NOT NULL,
+    PRIMARY KEY (ID_USUARIO)
+);
+
+delimiter //
+
+CREATE PROCEDURE SP_GUARDAR_USUARIO (INOUT pIdUsuario VARCHAR(15), IN pNombres VARCHAR(80), IN pApellidos VARCHAR(80), IN pCedula VARCHAR(15), IN pCorreo VARCHAR(100), IN pTelefono VARCHAR(15), OUT respuesta INT)
+BEGIN
+
+	DECLARE EXIT HANDLER FOR SQLSTATE '23000' SET respuesta = 0;
+
+	IF pIdUsuario IS NULL THEN
+		INSERT INTO USUARIO (NOMBRES, APELLIDOS, CEDULA, CORREO, TELEFONO)
+    	VALUES (pNombres, pApellidos, pCedula, pCorreo, pTelefono);
+        SELECT LAST_INSERT_ID() INTO pIdUsuario;
+    ELSE
+    	UPDATE USUARIO SET
+	      NOMBRES = pNombres,
+	      APELLIDOS = pApellidos,
+	      CEDULA = pCedula,
+	      CORREO = pCorreo,
+	      TELEFONO = pTelefono
+	    WHERE ID_USUARIO = pIdUsuario;
+	END IF;
+
+    SET respuesta = 1;
+END//
+delimiter ;
